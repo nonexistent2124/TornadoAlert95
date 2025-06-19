@@ -9,6 +9,9 @@ Type "help" for a list of commands to run (I hid a few Easter eggs in there.)
   3. Paste the source code in the file.
   4. Create a package inside the src folder with the TornadoAlert95.java file inside. Name it com.example.TornadoAlert95.
   5. Compile and run. -> If there is errors about JSON, download this file from SourceForge: https://sourceforge.net/projects/json-java.mirror/files/latest/download. Then, make a folder named lib under the parent folder of everything. Add your JSON file to it. Go to File > Project Structure. Click on the Modules tab on the left. Click on the Dependencies tab. Hit the + button, click JARs or Directories, and add your JAR file to it. Make sure on the right it says Scope: Compile. If it doesn't, change it. Click Apply, then OK. Now there should be no more errors when you compile and run.
+
+     --YOU CAN ALSO DOWNLOAD THE ZIP--
+     
 Welcome to TornadoAlert95!
 
 Notes:
