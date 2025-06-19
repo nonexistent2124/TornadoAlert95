@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import org.json.*;
 
 public class TornadoAlert95 {
-    private static final String API_KEY = "df4f2ac31b932a79bbe7f80a4ed6bb8e";
+    private static final String API_KEY = "no term";
     private static String location = null;
     private static final long startTime = System.currentTimeMillis();
     private static final List<String> scanLog = new ArrayList<>();

@@ -3,105 +3,186 @@ package com.example.TornadoAlert95;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.json.*;
 
 public class TornadoAlertGUI95 extends JFrame {
     private static final String API_KEY = "df4f2ac31b932a79bbe7f80a4ed6bb8e";
 
-    private JTextField locationInput;
-    private JTextArea conditionArea;
+    private JLabel weatherIconLabel;
+    private JLabel temperatureLabel;
+    private JLabel conditionLabel;
+    private JLabel locationLabel;
+    private JTextField locationInputField;
+    private JLabel humidityLabel, windLabel, visibilityLabel, precipLabel;
     private JLabel statusBar;
 
+    private String currentLocation = "48176,US";
+    private final Timer refreshTimer = new Timer();
+
     public TornadoAlertGUI95() {
-        setTitle("TornadoAlert95 – Weather Panel");
+        setTitle("TornadoAlert95 – Weather");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(500, 400);
+        setSize(550, 500);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
 
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (Exception ignored) {}
 
-        // Top input section
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.setBorder(new TitledBorder("Location"));
+        // Location input
+        JPanel locationInputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        locationInputPanel.setBorder(new TitledBorder("Set Location"));
+        locationInputField = new JTextField(currentLocation, 20);
+        locationInputField.addActionListener(e -> {
+            currentLocation = locationInputField.getText().trim();
+            fetchWeather(currentLocation);
+        });
+        locationInputPanel.add(new JLabel("City or ZIP,Country:"));
+        locationInputPanel.add(locationInputField);
 
-        locationInput = new JTextField("48176,US", 20);
-        JButton fetchBtn = new JButton("Get Weather");
-        topPanel.add(new JLabel("ZIP or City,Country:"));
-        topPanel.add(locationInput);
-        topPanel.add(fetchBtn);
+        // Forecast visuals
+        weatherIconLabel = new JLabel();
+        weatherIconLabel.setPreferredSize(new Dimension(160, 160));
 
-        // Center conditions panel
-        conditionArea = new JTextArea();
-        conditionArea.setEditable(false);
-        conditionArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        conditionArea.setBorder(new TitledBorder("Current Conditions"));
+        temperatureLabel = new JLabel("--°F");
+        temperatureLabel.setFont(new Font("Dialog", Font.BOLD, 36));
+        conditionLabel = new JLabel("CONDITION");
+        conditionLabel.setFont(new Font("Dialog", Font.PLAIN, 18));
+        locationLabel = new JLabel("LOCATION");
+        locationLabel.setFont(new Font("Dialog", Font.PLAIN, 14));
+        locationLabel.setForeground(Color.DARK_GRAY);
 
-        // Status bar
+        JPanel textStack = new JPanel();
+        textStack.setLayout(new BoxLayout(textStack, BoxLayout.Y_AXIS));
+        textStack.add(temperatureLabel);
+        textStack.add(conditionLabel);
+        textStack.add(locationLabel);
+
+        JPanel forecastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+        forecastPanel.add(weatherIconLabel);
+        forecastPanel.add(textStack);
+        forecastPanel.setBorder(new TitledBorder("Now"));
+
+        // Stats
+        JPanel statsPanel = new JPanel();
+        statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
+        statsPanel.setBorder(new TitledBorder("Details"));
+
+        humidityLabel = new JLabel("Humidity: --%");
+        windLabel = new JLabel("Wind Speed: -- mph");
+        visibilityLabel = new JLabel("Visibility: -- mi");
+        precipLabel = new JLabel("Precipitation (1h): -- mm");
+
+        statsPanel.add(humidityLabel);
+        statsPanel.add(windLabel);
+        statsPanel.add(visibilityLabel);
+        statsPanel.add(precipLabel);
+
+        // Status
         statusBar = new JLabel("System ready.");
         statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(statsPanel, BorderLayout.CENTER);
+        bottomPanel.add(statusBar, BorderLayout.SOUTH);
 
-        add(topPanel, BorderLayout.NORTH);
-        add(new JScrollPane(conditionArea), BorderLayout.CENTER);
-        add(statusBar, BorderLayout.SOUTH);
+        add(locationInputPanel, BorderLayout.NORTH);
+        add(forecastPanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        fetchBtn.addActionListener(e -> fetchWeather(locationInput.getText().trim()));
+        fetchWeather(currentLocation);
+        refreshTimer.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                SwingUtilities.invokeLater(() -> fetchWeather(currentLocation));
+            }
+        }, 60000, 60000);
 
         setVisible(true);
     }
 
     private void fetchWeather(String location) {
-        conditionArea.setText("");
-        statusBar.setText("Fetching weather...");
+        temperatureLabel.setText("--°F");
+        conditionLabel.setText("LOADING...");
+        locationLabel.setText("");
+        humidityLabel.setText("Humidity: --%");
+        windLabel.setText("Wind Speed: -- mph");
+        visibilityLabel.setText("Visibility: -- mi");
+        precipLabel.setText("Precipitation (1h): -- mm");
+        weatherIconLabel.setIcon(null);
+        statusBar.setText("Fetching: " + location);
 
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             protected Void doInBackground() {
                 try {
-                    String geoURL = "http://api.openweathermap.org/geo/1.0/direct?q=" +
-                            URLEncoder.encode(location, "UTF-8") +
-                            "&limit=1&appid=" + API_KEY;
-                    JSONArray geo = new JSONArray(readURL(geoURL));
-                    if (geo.isEmpty()) {
-                        conditionArea.setText(">> LOCATION NOT FOUND.\n");
-                        return null;
-                    }
-                    JSONObject coords = geo.getJSONObject(0);
-                    double lat = coords.getDouble("lat");
-                    double lon = coords.getDouble("lon");
+                    String[] parts = location.split(",", 2);
+                    String city = URLEncoder.encode(parts[0].trim(), "UTF-8");
+                    String country = parts.length > 1 ? parts[1].trim() : "US";
 
-                    String oneCall = String.format(
-                            "https://api.openweathermap.org/data/3.0/onecall?lat=%f&lon=%f&appid=%s&units=imperial",
-                            lat, lon, API_KEY);
-                    JSONObject weather = new JSONObject(readURL(oneCall));
-                    JSONObject current = weather.getJSONObject("current");
+                    String url = "https://api.openweathermap.org/data/2.5/weather?q=" +
+                            city + "," + country + "&appid=" + API_KEY + "&units=imperial";
+                    JSONObject data = new JSONObject(readURL(url));
 
-                    conditionArea.setText(String.format("""
-                            LOCATION: %s
-                            LAT, LON: %.2f, %.2f
-                            TEMP: %.1f°F
-                            HUMIDITY: %d%%
-                            WIND SPEED: %.1f mph
-                            """,
-                            location.toUpperCase(), lat, lon,
-                            current.getDouble("temp"),
-                            current.getInt("humidity"),
-                            current.getJSONObject("wind").getDouble("speed")));
+                    String name = data.getString("name");
+                    JSONObject main = data.getJSONObject("main");
+                    double temp = main.getDouble("temp");
+                    int humidity = main.getInt("humidity");
+                    double wind = data.getJSONObject("wind").getDouble("speed");
+                    int visibility = data.has("visibility") ? data.getInt("visibility") : -1;
+                    double precipitation = data.has("rain") ?
+                            data.getJSONObject("rain").optDouble("1h", 0.0) : 0.0;
+                    String condition = data.getJSONArray("weather").getJSONObject(0).getString("description");
+
+                    temperatureLabel.setText(String.format("%.0f°F", temp));
+                    conditionLabel.setText(condition.toUpperCase());
+                    locationLabel.setText(name);
+
+                    humidityLabel.setText("Humidity: " + humidity + "%");
+                    windLabel.setText(String.format("Wind Speed: %.1f mph", wind));
+                    visibilityLabel.setText(visibility >= 0 ?
+                            String.format("Visibility: %.1f mi", visibility / 1609.34) : "Visibility: N/A");
+                    precipLabel.setText(String.format("Precipitation (1h): %.2f mm", precipitation));
+
+                    String iconPath = "assets/" + mapConditionToIcon(condition);
+                    ImageIcon icon = new ImageIcon(iconPath);
+                    Image scaled = icon.getImage().getScaledInstance(160, 160, Image.SCALE_SMOOTH);
+                    weatherIconLabel.setIcon(new ImageIcon(scaled));
                 } catch (Exception e) {
-                    conditionArea.setText(">> ERROR: " + e.getMessage());
+                    conditionLabel.setText("ERROR");
+                    locationLabel.setText("Invalid location");
+                    humidityLabel.setText("Humidity: --%");
+                    windLabel.setText("Wind Speed: -- mph");
+                    visibilityLabel.setText("Visibility: -- mi");
+                    precipLabel.setText("Precipitation (1h): -- mm");
+                    System.err.println("Weather fetch failed: " + e.getMessage());
                 }
                 return null;
             }
 
             protected void done() {
-                statusBar.setText("Scan complete.");
+                statusBar.setText("Last updated: " + currentLocation);
             }
         };
         worker.execute();
+    }
+
+    private String mapConditionToIcon(String desc) {
+        desc = desc.toLowerCase();
+        if (desc.contains("thunderstorm")) return "thunderstorm.png";
+        if (desc.contains("drizzle")) return "rain.png";
+        if (desc.contains("freezing rain") || desc.contains("rain") || desc.contains("shower"))
+            return "shower_rain.png";
+        if (desc.contains("snow") || desc.contains("sleet")) return "snow.png";
+        if (desc.contains("mist") || desc.contains("haze") || desc.contains("fog") ||
+                desc.contains("smoke") || desc.contains("dust") || desc.contains("tornado"))
+            return "mist.png";
+        if (desc.equals("clear sky")) return "clear_sky.png";
+        if (desc.contains("overcast")) return "broken_clouds.png";
+        if (desc.contains("cloud")) return "few_clouds.png";
+        return "default.png";
     }
 
     private static String readURL(String endpoint) throws IOException {
