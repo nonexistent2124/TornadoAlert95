@@ -3,14 +3,14 @@ So this was a fun project I made using Java. I was inspired randomly by severe t
 To run:
 Compile with a Java compiler (i.e from JDK) or use an IDE (like IntelliJ Idea, Eclipse, Apache NetBeans, etc) to run the TornadoAlert95 Java code.
 Type "help" for a list of commands to run (I hid a few Easter eggs in there.)
-  More detail:
-  1. In an IDE (for this tutorial use IntelliJ IDEA), make a new project and call it TornadoAlert95.
-  2. Name the new Java file inside the src folder TornadoAlert95.java.
-  3. Paste the source code in the file.
-  4. Create a package inside the src folder with the TornadoAlert95.java file inside. Name it com.example.TornadoAlert95.
-  5. Compile and run. -> If there is errors about JSON, download this file from SourceForge: https://sourceforge.net/projects/json-java.mirror/files/latest/download. Then, make a folder named lib under the parent folder of everything. Add your JSON file to it. Go to File > Project Structure. Click on the Modules tab on the left. Click on the Dependencies tab. Hit the + button, click JARs or Directories, and add your JAR file to it. Make sure on the right it says Scope: Compile. If it doesn't, change it. Click Apply, then OK. Now there should be no more errors when you compile and run.
 
-     --YOU CAN ALSO DOWNLOAD THE ZIP--
+To download:
+Download the ZIP file and set up a new project with all the files in it.
+
+Versions:
+TornadoAlert95 v3.6 classic - command-line interface
+TornadoAlertGUI95 - uses a GUI instead
+
      
 Welcome to TornadoAlert95!
 
