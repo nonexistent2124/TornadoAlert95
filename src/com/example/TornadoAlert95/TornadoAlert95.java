@@ -68,7 +68,7 @@ public class TornadoAlert95 {
 
             // Boot sequence
             console.append(">> CRT SYSTEM BOOT\n>> LOADING: TORNADOALERT95 v3.6\n");
-            console.append(">> ENTER STARTUP LOCATION (ZIP or city,COUNTRY):\n> ");
+            console.append(">> ENTER STARTUP LOCATION (ZIP or city,COUNTRY) (e.g. 32284,US or Indianapolis,Indiana,US):\n> ");
             final boolean[] initialized = {false};
             input.addActionListener(e -> {
                 String command = input.getText().trim();
