@@ -1,11 +1,11 @@
 So this was a fun project I made using Java. I was inspired randomly by severe thunderstorms sweeping across the area of Ann Arbor, Michigan (where I live) on Jun 18, 2025. I have quite a bit of experience with terminals, DOS, Linux, etc. So, I made a weather app using Java (and Java Swing for the UI). I love command prompts and the insane amount of customization Linux offers and stuff like that. Most weather apps use a graphical user interface (GUI), but I wanted to make one with a command prompt for fun (and to hone my Java skills). With a little help from Microsoft Copilot, this is my final version. It's called TornadoAlert95 (the 95 for 1995, like Windows 95. Plus it has a 90s kind of vibe.) I hid a few Easter eggs in it too. I made the logo with Piskel.
 
 To run:
-Compile with a Java compiler (i.e from JDK) or use an IDE (like IntelliJ Idea, Eclipse, Apache NetBeans, etc) to run the TornadoAlert95 Java code.
+Compile with a Java compiler (i.e using JDK) or use an IDE (like IntelliJ Idea, Eclipse, Apache NetBeans, etc) to run the TornadoAlert95 Java code.
 Type "help" for a list of commands to run (I hid a few Easter eggs in there.)
 
 To download:
-Download the ZIP file and set up a new project with all the files in it.
+Watch this video: https://www.youtube.com/watch?v=Lb2OAuOgv5c&t=9s
 
 Versions:
 TornadoAlert95 v3.6 classic - command-line interface
