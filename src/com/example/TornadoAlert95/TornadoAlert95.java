@@ -20,7 +20,7 @@ public class TornadoAlert95 {
             JFrame frame = new JFrame("TornadoAlert95");
 
             // Load and scale logo
-            ImageIcon icon = new ImageIcon("tornado95.png");
+            ImageIcon icon = new ImageIcon("assets/tornado95.png");
             Image scaled = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
             JLabel logo = new JLabel(new ImageIcon(scaled));
             logo.setHorizontalAlignment(SwingConstants.CENTER);
