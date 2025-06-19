@@ -171,18 +171,18 @@ public class TornadoAlertGUI95 extends JFrame {
 
     private String mapConditionToIcon(String desc) {
         desc = desc.toLowerCase();
-        if (desc.contains("thunderstorm")) return "thunderstorm.png";
-        if (desc.contains("drizzle")) return "rain.png";
+        if (desc.contains("thunderstorm")) return "assets/thunderstorm.png";
+        if (desc.contains("drizzle")) return "assets/rain.png";
         if (desc.contains("freezing rain") || desc.contains("rain") || desc.contains("shower"))
-            return "shower_rain.png";
-        if (desc.contains("snow") || desc.contains("sleet")) return "snow.png";
+            return "assets/shower_rain.png";
+        if (desc.contains("snow") || desc.contains("sleet")) return "assets/snow.png";
         if (desc.contains("mist") || desc.contains("haze") || desc.contains("fog") ||
                 desc.contains("smoke") || desc.contains("dust") || desc.contains("tornado"))
-            return "mist.png";
-        if (desc.equals("clear sky")) return "clear_sky.png";
-        if (desc.contains("overcast")) return "broken_clouds.png";
-        if (desc.contains("cloud")) return "few_clouds.png";
-        return "default.png";
+            return "assets/mist.png";
+        if (desc.equals("clear sky")) return "assets/clear_sky.png";
+        if (desc.contains("overcast")) return "assets/broken_clouds.png";
+        if (desc.contains("cloud")) return "assets/few_clouds.png";
+        return "assets/default.png";
     }
 
     private static String readURL(String endpoint) throws IOException {
