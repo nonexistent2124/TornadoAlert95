@@ -123,7 +123,6 @@ public class TornadoAlert95 {
                         >> uptime            - show run time
                         >> theme invert      - toggle color scheme
                         >> eject             - floppy disk
-                        >> radar             - radar interface stub
                         >> godmode           - N/A
                         >> the radar is lying - N/A
                         >> exit              - shut down terminal
@@ -133,6 +132,12 @@ public class TornadoAlert95 {
                         Timer t = new Timer(1000, evt -> System.exit(0));
                         t.setRepeats(false);
                         t.start();
+                    }
+                    case "godmode" -> {
+                        console.append("GODMODE ACTIVATED. Weather can't touch you now.");
+                    }
+                    case "the radar is lying" -> {
+                        console.append("Nuh uh.");
                     }
                     default -> {
                         if (lower.startsWith("set location ")) {
