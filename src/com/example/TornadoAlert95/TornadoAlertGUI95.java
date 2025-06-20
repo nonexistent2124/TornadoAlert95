@@ -34,10 +34,23 @@ public class TornadoAlertGUI95 extends JFrame {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (Exception ignored) {}
 
-        // Location input
+        // 🎨 Load Pixelated Font
+        Font pixelFont;
+        try {
+            pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("assets/fonts/Pixelated.ttf"));
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(pixelFont);
+            pixelFont = pixelFont.deriveFont(Font.PLAIN, 12f);
+        } catch (Exception e) {
+            System.err.println("Pixel font failed to load, using Monospaced fallback.");
+            pixelFont = new Font("Monospaced", Font.PLAIN, 12);
+        }
+
+        // ⌨️ Location input
         JPanel locationInputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         locationInputPanel.setBorder(new TitledBorder("Set Location"));
         locationInputField = new JTextField(currentLocation, 20);
+        locationInputField.setFont(pixelFont);
         locationInputField.addActionListener(e -> {
             currentLocation = locationInputField.getText().trim();
             fetchWeather(currentLocation);
@@ -45,16 +58,18 @@ public class TornadoAlertGUI95 extends JFrame {
         locationInputPanel.add(new JLabel("City or ZIP,Country:"));
         locationInputPanel.add(locationInputField);
 
-        // Forecast visuals
+        // 🌦️ Forecast visuals
         weatherIconLabel = new JLabel();
         weatherIconLabel.setPreferredSize(new Dimension(160, 160));
 
         temperatureLabel = new JLabel("--°F");
-        temperatureLabel.setFont(new Font("Dialog", Font.BOLD, 36));
+        temperatureLabel.setFont(pixelFont.deriveFont(28f));
+
         conditionLabel = new JLabel("CONDITION");
-        conditionLabel.setFont(new Font("Dialog", Font.PLAIN, 18));
+        conditionLabel.setFont(pixelFont.deriveFont(14f));
+
         locationLabel = new JLabel("LOCATION");
-        locationLabel.setFont(new Font("Dialog", Font.PLAIN, 14));
+        locationLabel.setFont(pixelFont);
         locationLabel.setForeground(Color.DARK_GRAY);
 
         JPanel textStack = new JPanel();
@@ -68,24 +83,30 @@ public class TornadoAlertGUI95 extends JFrame {
         forecastPanel.add(textStack);
         forecastPanel.setBorder(new TitledBorder("Now"));
 
-        // Stats
+        // 📊 Stats Panel
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
         statsPanel.setBorder(new TitledBorder("Details"));
 
         humidityLabel = new JLabel("Humidity: --%");
+        humidityLabel.setFont(pixelFont);
         windLabel = new JLabel("Wind Speed: -- mph");
+        windLabel.setFont(pixelFont);
         visibilityLabel = new JLabel("Visibility: -- mi");
+        visibilityLabel.setFont(pixelFont);
         precipLabel = new JLabel("Precipitation (1h): -- mm");
+        precipLabel.setFont(pixelFont);
 
         statsPanel.add(humidityLabel);
         statsPanel.add(windLabel);
         statsPanel.add(visibilityLabel);
         statsPanel.add(precipLabel);
 
-        // Status
+        // 🔽 Status Bar
         statusBar = new JLabel("System ready.");
+        statusBar.setFont(pixelFont.deriveFont(10f));
         statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.add(statsPanel, BorderLayout.CENTER);
         bottomPanel.add(statusBar, BorderLayout.SOUTH);
@@ -94,6 +115,7 @@ public class TornadoAlertGUI95 extends JFrame {
         add(forecastPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
+        // 🔁 Auto-refresh every 60 seconds
         fetchWeather(currentLocation);
         refreshTimer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
@@ -103,6 +125,7 @@ public class TornadoAlertGUI95 extends JFrame {
 
         setVisible(true);
     }
+
 
     private void fetchWeather(String location) {
         temperatureLabel.setText("--°F");
