@@ -5,6 +5,8 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.json.*;
@@ -19,8 +21,9 @@ public class TornadoAlertGUI95 extends JFrame {
     private JTextField locationInputField;
     private JLabel humidityLabel, windLabel, visibilityLabel, precipLabel;
     private JLabel statusBar;
+    private JLabel timeLabel; // NEW: Local time label
 
-    private String currentLocation = "48176,US";
+    private String currentLocation = "Enter location here... (e.g Detroit,US)";
     private final Timer refreshTimer = new Timer();
 
     public TornadoAlertGUI95() {
@@ -92,6 +95,10 @@ public class TornadoAlertGUI95 extends JFrame {
         locationLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 18f));
         locationLabel.setForeground(fgColor);
 
+        timeLabel = new JLabel("Local Time: --:--");  // NEW: Initialize local time label
+        timeLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 12f));
+        timeLabel.setForeground(fgColor);
+
         JPanel textStack = new JPanel();
         textStack.setBackground(bgColor);
         textStack.setLayout(new BoxLayout(textStack, BoxLayout.Y_AXIS));
@@ -100,6 +107,8 @@ public class TornadoAlertGUI95 extends JFrame {
         textStack.add(conditionLabel);
         textStack.add(Box.createVerticalStrut(5));   // spacing
         textStack.add(locationLabel);
+        textStack.add(Box.createVerticalStrut(5));   // spacing
+        textStack.add(timeLabel);  // ADD time label at bottom of Now panel
 
         JPanel forecastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
         forecastPanel.setBackground(bgColor);
@@ -136,7 +145,6 @@ public class TornadoAlertGUI95 extends JFrame {
         visibilityLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         precipLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-
         statsPanel.add(humidityLabel);
         statsPanel.add(Box.createVerticalStrut(8));
         statsPanel.add(windLabel);
@@ -170,9 +178,15 @@ public class TornadoAlertGUI95 extends JFrame {
             }
         }, 60000, 60000);
 
+        // Optional: Update time label every minute so clock ticks even if no weather fetch
+        new javax.swing.Timer(60000, e -> {
+            LocalDateTime now = LocalDateTime.now();
+            String timeString = now.format(DateTimeFormatter.ofPattern("hh:mm a"));
+            timeLabel.setText("Time: " + timeString);
+        }).start();
+
         setVisible(true);
     }
-
 
     private void fetchWeather(String location) {
         temperatureLabel.setText("--°F");
@@ -216,10 +230,22 @@ public class TornadoAlertGUI95 extends JFrame {
                             String.format("Visibility: %.1f mi", visibility / 1609.34) : "Visibility: N/A");
                     precipLabel.setText(String.format("Precipitation (1h): %.2f mm", precipitation));
 
-                    String iconPath = "assets/" + mapConditionToIcon(condition);
+                    // Local time display update
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+                    String timeString = now.format(formatter);
+                    timeLabel.setText("Local Time: " + timeString);
+
+                    // Determine hour for night/day icon
+                    int hour = now.getHour(); // 0-23
+                    boolean isNight = hour >= 20 || hour < 6; // night if after 8pm or before 6am
+
+                    String iconName = mapConditionToIcon(condition, isNight);
+                    String iconPath = "assets/" + iconName;
                     ImageIcon icon = new ImageIcon(iconPath);
                     Image scaled = icon.getImage().getScaledInstance(160, 160, Image.SCALE_SMOOTH);
                     weatherIconLabel.setIcon(new ImageIcon(scaled));
+
                 } catch (Exception e) {
                     conditionLabel.setText("ERROR");
                     locationLabel.setText("Invalid location");
@@ -227,6 +253,7 @@ public class TornadoAlertGUI95 extends JFrame {
                     windLabel.setText("Wind Speed: -- mph");
                     visibilityLabel.setText("Visibility: -- mi");
                     precipLabel.setText("Precipitation (1h): -- mm");
+                    timeLabel.setText("Time: --:--");
                     System.err.println("Weather fetch failed: " + e.getMessage());
                 }
                 return null;
@@ -239,22 +266,39 @@ public class TornadoAlertGUI95 extends JFrame {
         worker.execute();
     }
 
-    private String mapConditionToIcon(String desc) {
+    // Modified to include night icons
+    private String mapConditionToIcon(String desc, boolean isNight) {
         desc = desc.toLowerCase();
-        if (desc.contains("thunderstorm")) return "thunderstorm.png";
-        if (desc.contains("drizzle")) return "rain.png";
-        if (desc.contains("freezing rain") || desc.contains("rain") || desc.contains("shower"))
-            return "shower_rain.png";
-        if (desc.contains("snow") || desc.contains("sleet")) return "snow.png";
-        if (desc.contains("mist") || desc.contains("haze") || desc.contains("fog") ||
-                desc.contains("smoke") || desc.contains("dust") || desc.contains("tornado"))
-            return "mist.png";
-        if (desc.equals("clear sky")) return "clear_sky.png";
-        if (desc.contains("overcast")) return "broken_clouds.png";
-        if (desc.contains("cloud")) return "few_clouds.png";
-        return "default.png";
-    }
 
+        if (isNight) {
+            // Night icons
+            if (desc.contains("thunderstorm")) return "thunderstorm_night.png";
+            if (desc.contains("drizzle") || desc.contains("rain")) return "rain_night.png";
+            if (desc.contains("snow") || desc.contains("sleet")) return "mist_night.png"; // treat snow/sleet as mist at night per your request
+            if (desc.contains("mist") || desc.contains("haze") || desc.contains("fog") ||
+                    desc.contains("smoke") || desc.contains("dust") || desc.contains("tornado"))
+                return "mist_night.png";
+            if (desc.equals("clear sky")) return "clear_night.png";
+            if (desc.contains("cloud") || desc.contains("overcast")) return "cloudy_night.png";
+
+            // Default night icon fallback
+            return "default_night.png";
+        } else {
+            // Day icons (your original mapping plus slight adjustments)
+            if (desc.contains("thunderstorm")) return "thunderstorm.png";
+            if (desc.contains("drizzle") || desc.contains("rain")) return "rain.png";
+            if (desc.contains("snow") || desc.contains("sleet")) return "snow.png";
+            if (desc.contains("mist") || desc.contains("haze") || desc.contains("fog") ||
+                    desc.contains("smoke") || desc.contains("dust") || desc.contains("tornado"))
+                return "mist.png";
+            if (desc.equals("clear sky")) return "clear_sky.png";
+            if (desc.contains("overcast")) return "broken_clouds.png";
+            if (desc.contains("cloud")) return "few_clouds.png";
+
+            // Default day icon fallback
+            return "default.png";
+        }
+    }
 
     private static String readURL(String endpoint) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(new URL(endpoint).openStream()));
