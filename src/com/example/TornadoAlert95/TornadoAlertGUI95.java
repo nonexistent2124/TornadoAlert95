@@ -30,6 +30,14 @@ public class TornadoAlertGUI95 extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
+        // Dark mode colors
+        Color bgColor = new Color(30, 30, 30);
+        Color fgColor = Color.WHITE;
+        Color borderColor = new Color(70, 70, 70);
+
+        // Set dark background for JFrame content pane
+        getContentPane().setBackground(bgColor);
+
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (Exception ignored) {}
@@ -48,14 +56,24 @@ public class TornadoAlertGUI95 extends JFrame {
 
         // ⌨️ Location input
         JPanel locationInputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        locationInputPanel.setBorder(new TitledBorder("Set Location"));
+        locationInputPanel.setBackground(bgColor);
+        locationInputPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(borderColor), "Set Location", TitledBorder.LEFT, TitledBorder.TOP,
+                pixelFont, fgColor));
         locationInputField = new JTextField(currentLocation, 20);
         locationInputField.setFont(pixelFont);
+        locationInputField.setBackground(new Color(50, 50, 50));
+        locationInputField.setForeground(fgColor);
+        locationInputField.setCaretColor(fgColor);
+        locationInputField.setBorder(BorderFactory.createLineBorder(borderColor));
         locationInputField.addActionListener(e -> {
             currentLocation = locationInputField.getText().trim();
             fetchWeather(currentLocation);
         });
-        locationInputPanel.add(new JLabel("City or ZIP,Country:"));
+        JLabel locLabel = new JLabel("City or ZIP,Country:");
+        locLabel.setForeground(fgColor);
+        locLabel.setFont(pixelFont);
+        locationInputPanel.add(locLabel);
         locationInputPanel.add(locationInputField);
 
         // 🌦️ Forecast visuals
@@ -63,51 +81,80 @@ public class TornadoAlertGUI95 extends JFrame {
         weatherIconLabel.setPreferredSize(new Dimension(160, 160));
 
         temperatureLabel = new JLabel("--°F");
-        temperatureLabel.setFont(pixelFont.deriveFont(28f));
+        temperatureLabel.setFont(pixelFont.deriveFont(Font.BOLD, 28f));
+        temperatureLabel.setForeground(fgColor);
 
         conditionLabel = new JLabel("CONDITION");
-        conditionLabel.setFont(pixelFont.deriveFont(14f));
+        conditionLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 16f));
+        conditionLabel.setForeground(fgColor);
 
         locationLabel = new JLabel("LOCATION");
-        locationLabel.setFont(pixelFont);
-        locationLabel.setForeground(Color.DARK_GRAY);
+        locationLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 18f));
+        locationLabel.setForeground(fgColor);
 
         JPanel textStack = new JPanel();
+        textStack.setBackground(bgColor);
         textStack.setLayout(new BoxLayout(textStack, BoxLayout.Y_AXIS));
         textStack.add(temperatureLabel);
+        textStack.add(Box.createVerticalStrut(5));   // spacing
         textStack.add(conditionLabel);
+        textStack.add(Box.createVerticalStrut(5));   // spacing
         textStack.add(locationLabel);
 
         JPanel forecastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+        forecastPanel.setBackground(bgColor);
+        forecastPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(borderColor), "Now", TitledBorder.LEFT, TitledBorder.TOP,
+                pixelFont, fgColor));
         forecastPanel.add(weatherIconLabel);
         forecastPanel.add(textStack);
-        forecastPanel.setBorder(new TitledBorder("Now"));
 
         // 📊 Stats Panel
         JPanel statsPanel = new JPanel();
+        statsPanel.setBackground(bgColor);
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
-        statsPanel.setBorder(new TitledBorder("Details"));
+        statsPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(borderColor), "Details", TitledBorder.CENTER, TitledBorder.TOP,
+                pixelFont.deriveFont(Font.BOLD, 16f), fgColor));
+        statsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         humidityLabel = new JLabel("Humidity: --%");
-        humidityLabel.setFont(pixelFont);
+        humidityLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 14f));
+        humidityLabel.setForeground(fgColor);
         windLabel = new JLabel("Wind Speed: -- mph");
-        windLabel.setFont(pixelFont);
+        windLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 14f));
+        windLabel.setForeground(fgColor);
         visibilityLabel = new JLabel("Visibility: -- mi");
-        visibilityLabel.setFont(pixelFont);
+        visibilityLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 14f));
+        visibilityLabel.setForeground(fgColor);
         precipLabel = new JLabel("Precipitation (1h): -- mm");
-        precipLabel.setFont(pixelFont);
+        precipLabel.setFont(pixelFont.deriveFont(Font.PLAIN, 14f));
+        precipLabel.setForeground(fgColor);
+        // Center detail labels horizontally
+        humidityLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        windLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        visibilityLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        precipLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
 
         statsPanel.add(humidityLabel);
+        statsPanel.add(Box.createVerticalStrut(8));
         statsPanel.add(windLabel);
+        statsPanel.add(Box.createVerticalStrut(8));
         statsPanel.add(visibilityLabel);
+        statsPanel.add(Box.createVerticalStrut(8));
         statsPanel.add(precipLabel);
 
         // 🔽 Status Bar
         statusBar = new JLabel("System ready.");
-        statusBar.setFont(pixelFont.deriveFont(10f));
+        statusBar.setFont(pixelFont.deriveFont(Font.PLAIN, 10f));
         statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        statusBar.setBackground(bgColor);
+        statusBar.setForeground(fgColor);
+        statusBar.setOpaque(true);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(bgColor);
         bottomPanel.add(statsPanel, BorderLayout.CENTER);
         bottomPanel.add(statusBar, BorderLayout.SOUTH);
 
