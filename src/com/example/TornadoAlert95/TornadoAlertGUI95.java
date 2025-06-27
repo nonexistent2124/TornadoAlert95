@@ -7,13 +7,13 @@ import java.io.*;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Timer; import java.util.TimerTask;
 import org.json.*;
+import java.time.ZoneOffset;
+
 
 public class TornadoAlertGUI95 extends JFrame {
     private static final String API_KEY = "df4f2ac31b932a79bbe7f80a4ed6bb8e";
-
     private JLabel weatherIconLabel;
     private JLabel temperatureLabel;
     private JLabel conditionLabel;
@@ -178,11 +178,24 @@ public class TornadoAlertGUI95 extends JFrame {
             }
         }, 60000, 60000);
 
-        // Optional: Update time label every minute so clock ticks even if no weather fetch
+        // Optional: Update time label every minute based on location timezone
         new javax.swing.Timer(60000, e -> {
-            LocalDateTime now = LocalDateTime.now();
-            String timeString = now.format(DateTimeFormatter.ofPattern("hh:mm a"));
-            timeLabel.setText("Time: " + timeString);
+            try {
+                String[] parts = currentLocation.split(",", 2);
+                String city = URLEncoder.encode(parts[0].trim(), "UTF-8");
+                String country = parts.length > 1 ? parts[1].trim() : "US";
+
+                String url = "https://api.openweathermap.org/data/2.5/weather?q=" +
+                        city + "," + country + "&appid=" + API_KEY;
+                JSONObject data = new JSONObject(readURL(url));
+
+                int timezoneOffset = data.getInt("timezone");
+                LocalDateTime now = LocalDateTime.now(ZoneOffset.ofTotalSeconds(timezoneOffset));
+                String timeString = now.format(DateTimeFormatter.ofPattern("hh:mm a"));
+                timeLabel.setText("Local Time: " + timeString);
+            } catch (Exception ex) {
+                timeLabel.setText("Local Time: --:--");
+            }
         }).start();
 
         setVisible(true);
@@ -231,7 +244,8 @@ public class TornadoAlertGUI95 extends JFrame {
                     precipLabel.setText(String.format("Precipitation (1h): %.2f mm", precipitation));
 
                     // Local time display update
-                    LocalDateTime now = LocalDateTime.now();
+                    int timezoneOffset = data.getInt("timezone");
+                    LocalDateTime now = LocalDateTime.now(ZoneOffset.ofTotalSeconds(timezoneOffset));
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
                     String timeString = now.format(formatter);
                     timeLabel.setText("Local Time: " + timeString);
@@ -313,4 +327,5 @@ public class TornadoAlertGUI95 extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(TornadoAlertGUI95::new);
     }
+
 }
