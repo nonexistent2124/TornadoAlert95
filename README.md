@@ -4,6 +4,14 @@ Pictures of the software can be found in the etc/ folder.
 
 To run:
 Download the file for your OS here: nonexistent2124.github.io/TA95-Website/
+Or use the link in the description.
+
+Notes for TornadoAlert95 & TornadoAlertGUI95:
+Make sure that if you are finding the weather for a location in the U.S, put the state and country!
+Example:
+Detroit, US ❌
+Detroit, MI ❌
+Detroit, MI, US ✔
 
 
 Versions:
